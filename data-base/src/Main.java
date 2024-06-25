@@ -25,6 +25,12 @@ public class Main {
                 case "Update" -> {
                     employeeConnection.updateUser();
                 }
+                case "Increase" -> {
+                    employeeConnection.increaseCredit();
+                }
+                case "show" -> {
+                    employeeConnection.showAllProgrammers();
+                }
             }
         }
         System.out.print("Done");
@@ -57,7 +63,7 @@ class EmployeeConnection {
             throw new Exception("Date format is wrong");
         } else if (order.length == 7) {
             sqlFormat = String.format("insert into programmers (Name,BirthDate,ContractType,Income) values ('%s','%s','%s',%s)", order[1], order[2] + "-" + order[3] + "-" + order[4], order[5], order[6]);
-        } else if (Objects.equals(order[5], "FULL_TIME") || Objects.equals(order[5],"HALF_TIME")) {
+        } else if (Objects.equals(order[5], "FULL_TIME") || Objects.equals(order[5], "HALF_TIME")) {
             sqlFormat = String.format("insert into programmers (Name,BirthDate,ContractType) values ('%s','%s','%s')", order[1], order[2] + "-" + order[3] + "-" + order[4], order[5]);
         } else {
             sqlFormat = String.format("insert into programmers (Name,BirthDate,Income) values ('%s','%s',%s)", order[1], order[2] + "-" + order[3] + "-" + order[4], order[5]);
@@ -76,25 +82,53 @@ class EmployeeConnection {
 
     public void updateUser() throws SQLException {
         String sqlFormat = null;
-        switch (order[1]){
+        switch (order[1]) {
             case "name" -> {
-                sqlFormat = String.format("update programmers SET Name = '%s' WHERE ID = %s",order[3],order[2]);
+                sqlFormat = String.format("update programmers set Name = '%s' where ID = %s", order[3], order[2]);
             }
             case "birth date" -> {
-                sqlFormat = String.format("update programmers SET BirthDate = '%s' WHERE ID = %s",order[3] + "-" + order[4] + "-" + order[5],order[2]);
+                sqlFormat = String.format("update programmers set BirthDate = '%s' where ID = %s", order[3] + "-" + order[4] + "-" + order[5], order[2]);
             }
             case "contract type" -> {
-                sqlFormat = String.format("update programmers SET ContractType = '%s' WHERE ID = %s",order[3],order[2]);
+                sqlFormat = String.format("update programmers set ContractType = '%s' where ID = %s", order[3], order[2]);
             }
             case "income" -> {
-                sqlFormat = String.format("update programmers SET Income = %s WHERE ID = %s",order[3],order[2]);
+                sqlFormat = String.format("update programmers set Income = %s where ID = %s", order[3], order[2]);
             }
         }
         execute(sqlFormat);
     }
+
+    public void increaseCredit() throws SQLException {
+        String sqlFormat;
+        if (order.length == 4) {
+            sqlFormat = String.format("update programmers set Income = Income+%s where Name = '%s' or Name = '%s'", order[3], order[1], order[2]);
+        } else {
+            sqlFormat = String.format("update programmers set Income = Income+%s where Name = '%s' and ContractType = '%s'", order[2], order[1], ContractType.FULL_TIME);
+        }
+        execute(sqlFormat);
+    }
+
+    public void showAllProgrammers() throws SQLException {
+        String sqlFormat = String.format("select * from programmers");
+        Statement statement = connection.prepareStatement(sqlFormat);
+        ResultSet resultSet = statement.executeQuery(sqlFormat);
+        while (resultSet.next()) {
+            printInfo(resultSet);
+        }
+    }
+
     public void addSkillToUser() throws SQLException {
         String sqlFormat = String.format("insert into skills (employeeID,Skill) values (%s ,'%s')", order[2], order[3]);
         execute(sqlFormat);
+    }
+
+    public void printInfo(ResultSet resultSet) throws SQLException {
+        System.out.print(resultSet.getString("ID") + "\t");
+        System.out.print(resultSet.getString("Name") + "\t");
+        System.out.print(resultSet.getString("BirthDate") + "\t");
+        System.out.print(resultSet.getString("ContractType") + "\t");
+        System.out.println(resultSet.getString("Income"));
     }
 
     public void execute(String sqlFormat) throws SQLException {
