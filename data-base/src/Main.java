@@ -22,6 +22,9 @@ public class Main {
                         }
                     }
                 }
+                case "Update" -> {
+                    employeeConnection.updateUser();
+                }
             }
         }
         System.out.print("Done");
@@ -69,6 +72,25 @@ class EmployeeConnection {
             return false;
         }
         return Integer.parseInt(day) <= 31 && Integer.parseInt(day) >= 1;
+    }
+
+    public void updateUser() throws SQLException {
+        String sqlFormat = null;
+        switch (order[1]){
+            case "name" -> {
+                sqlFormat = String.format("update programmers SET Name = '%s' WHERE ID = %s",order[3],order[2]);
+            }
+            case "birth date" -> {
+                sqlFormat = String.format("update programmers SET BirthDate = '%s' WHERE ID = %s",order[3] + "-" + order[4] + "-" + order[5],order[2]);
+            }
+            case "contract type" -> {
+                sqlFormat = String.format("update programmers SET ContractType = '%s' WHERE ID = %s",order[3],order[2]);
+            }
+            case "income" -> {
+                sqlFormat = String.format("update programmers SET Income = %s WHERE ID = %s",order[3],order[2]);
+            }
+        }
+        execute(sqlFormat);
     }
     public void addSkillToUser() throws SQLException {
         String sqlFormat = String.format("insert into skills (employeeID,Skill) values (%s ,'%s')", order[2], order[3]);
