@@ -42,6 +42,9 @@ public class Main {
                         employeeConnection.showUser();
                     }
                 }
+                case "Delete" -> {
+                    employeeConnection.deleteEmployee();
+                }
             }
         }
         System.out.print("Done");
@@ -59,8 +62,8 @@ class EmployeeConnection {
     void executeSQL() throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
         String URL = "jdbc:mysql://localhost/TestDb";
-        String userName = "root";
-        String password = "1274432545";
+        String userName = "masihroughani";
+        String password = "isthebest";
         connection = DriverManager.getConnection(URL, userName, password);
     }
 
@@ -164,6 +167,11 @@ class EmployeeConnection {
         if (resultSet.next()) {
             System.out.println(resultSet.getString("Name") + " | " + (124 - resultSet.getDate("BirthDate").getYear()));
         }
+    }
+
+    public void deleteEmployee() throws SQLException {
+        String sqlFormat = String.format("delete from programmers where income < %s",order[1]);
+        execute(sqlFormat);
     }
 
     public void printInfo(ResultSet resultSet) throws SQLException {
