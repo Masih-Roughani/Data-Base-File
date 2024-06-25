@@ -31,6 +31,17 @@ public class Main {
                 case "show" -> {
                     employeeConnection.showAllProgrammers();
                 }
+                case "Show" -> {
+                    if (Objects.equals(EmployeeConnection.order[1], "full time programmers")) {
+                        employeeConnection.showFullProgrammers();
+                    } else if (Objects.equals(EmployeeConnection.order[1], "part time programmers")) {
+                        employeeConnection.showHalfProgrammers();
+                    } else if (EmployeeConnection.order.length == 3) {
+                        employeeConnection.showSkill();
+                    } else {
+                        employeeConnection.showUser();
+                    }
+                }
             }
         }
         System.out.print("Done");
@@ -123,6 +134,38 @@ class EmployeeConnection {
         execute(sqlFormat);
     }
 
+    public void showFullProgrammers() throws SQLException {
+        String sqlFormat = String.format("select * from programmers where ContractType = '%s'", ContractType.FULL_TIME);
+        ResultSet resultSet = executeQuery(sqlFormat);
+        while (resultSet.next()) {
+            printInfo(resultSet);
+        }
+    }
+
+    public void showHalfProgrammers() throws SQLException {
+        String sqlFormat = String.format("select * from programmers where ContractType = '%s'", ContractType.HALF_TIME);
+        ResultSet resultSet = executeQuery(sqlFormat);
+        while (resultSet.next()) {
+            printInfo(resultSet);
+        }
+    }
+
+    public void showSkill() throws SQLException {
+        String sqlFormat = String.format("select skills.Skill from programmers inner join skills on programmers.ID = skills.employeeID where programmers.ID = %s", order[1]);
+        ResultSet resultSet = executeQuery(sqlFormat);
+        while (resultSet.next()) {
+            System.out.println(resultSet.getString("Skill"));
+        }
+    }
+
+    public void showUser() throws SQLException {
+        String sqlFormat = String.format("select * from programmers where ID = %s", order[1]);
+        ResultSet resultSet = executeQuery(sqlFormat);
+        if (resultSet.next()) {
+            System.out.println(resultSet.getString("Name") + " | " + (124 - resultSet.getDate("BirthDate").getYear()));
+        }
+    }
+
     public void printInfo(ResultSet resultSet) throws SQLException {
         System.out.print(resultSet.getString("ID") + "\t");
         System.out.print(resultSet.getString("Name") + "\t");
@@ -134,6 +177,11 @@ class EmployeeConnection {
     public void execute(String sqlFormat) throws SQLException {
         Statement statement = connection.prepareStatement(sqlFormat);
         statement.execute(sqlFormat);
-//      this type of coding is not safe because someone may attack and change the sqlFormat and drop the table.
+    }
+
+    public ResultSet executeQuery(String sqlFormat) throws SQLException {
+        Statement statement = connection.prepareStatement(sqlFormat);
+        return statement.executeQuery(sqlFormat);
     }
 }
+//this type of coding is not safe because someone may attack and change the sqlFormat and drop the table.
